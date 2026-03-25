@@ -1,3 +1,7 @@
-langgraph 
+langgraph
 langchain-google-genai
 python-dotenv
+pandas
+yfinance
+stockstats
+python-dateutil

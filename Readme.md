@@ -14,3 +14,10 @@ github에서 가져오는 방법
 
 1. 원격 저장소(GitHub)의 최신 변경 사항을 내 컴퓨터로 다운로드
 git pull origin main
+
+
+가상환경 활성화
+.\venv\Scripts\activate
+
+가상환경 비활성화
+deactivate
