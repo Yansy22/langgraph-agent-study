@@ -3,7 +3,6 @@ import yfinance as yf
 from stockstats import wrap
 from typing import Annotated
 import os
-from .config import get_config
 
 
 class StockstatsUtils:
@@ -17,7 +16,7 @@ class StockstatsUtils:
             str, "curr date for retrieving stock price data, YYYY-mm-dd"
         ],
     ):
-        config = get_config()
+        data_cache_dir = os.getenv("DATA_CACHE_DIR", "data_cache")
 
         today_date = pd.Timestamp.today()
         curr_date_dt = pd.to_datetime(curr_date)
@@ -28,10 +27,10 @@ class StockstatsUtils:
         end_date_str = end_date.strftime("%Y-%m-%d")
 
         # Ensure cache directory exists
-        os.makedirs(config["data_cache_dir"], exist_ok=True)
+        os.makedirs(data_cache_dir, exist_ok=True)
 
         data_file = os.path.join(
-            config["data_cache_dir"],
+            data_cache_dir,
             f"{symbol}-YFin-data-{start_date_str}-{end_date_str}.csv",
         )
 
@@ -51,7 +50,7 @@ class StockstatsUtils:
             data.to_csv(data_file, index=False)
 
         df = wrap(data)
-        df["Date"] = df["Date"].dt.strftime("%Y-%m-%d")
+        df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d")
         curr_date_str = curr_date_dt.strftime("%Y-%m-%d")
 
         df[indicator]  # trigger stockstats to calculate the indicator
