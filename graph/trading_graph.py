@@ -45,22 +45,24 @@ class TradingGraphFacade:
         """
         messages = state.get("messages", [])
         
-        # Get last AI message content if available
-        # Find the last message that is from an AI agent
-        report_content = "No report generated."
-        for m in reversed(messages):
-            if hasattr(m, "content") and m.content:
-                report_content = m.content
-                break
+        market_report = state.get("market_report", "No market report generated.")
+        fundamental_report = state.get("fundamental_report", "No fundamental report generated.")
+        
+        full_report = (
+            f"=== [Market Analysis Report] ===\n{market_report}\n\n"
+            f"=== [Fundamental Analysis Report] ===\n{fundamental_report}"
+        )
         
         return {
             "ticker": state.get("ticker"),
             "date": state.get("date"),
-            "full_report": report_content,
+            "full_report": full_report,
             "messages_count": len(messages)
         }
+
 
 # Simplified function-based facade
 def run_trading_flow(ticker: str, date: str = None):
     facade = TradingGraphFacade(ticker, date)
     return facade.execute()
+

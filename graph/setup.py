@@ -18,9 +18,11 @@ def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
     
     # 마지막 메시지에 tool_calls가 있으면 해당 도구 노드로 이동
     if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+        print(f"  [Router] Tools detected, routing to next tool node.")
         return "tools"
     
     # 도구 호출이 없으면 현재 분석 단계를 종료하고 다음 분석가로 이동
+    print(f"  [Router] No tools detected, finishing current analysis segment.")
     return "__end__"
 
 # 전용 도구 노드 분리
@@ -33,12 +35,13 @@ fundamentals_tools = ToolNode(fundamentals_analyst_instance.tools)
 
 # 1. 메시지 삭제 노드 정의
 def clear_messages_node(state: AgentState):
+    print("\n[System] Clearing messages for the next agent segment...")
     return {"messages": "CLEAR"}
 
 
 def create_trading_graph():
     workflow = StateGraph(AgentState)
-    
+
     # 분석가 및 전용 도구 노드 추가
     workflow.add_node("market_analyst", market_analyst_node)
     workflow.add_node("market_tools", market_tools)

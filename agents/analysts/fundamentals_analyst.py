@@ -76,8 +76,14 @@ class FundamentalsAnalyst:
         date = state.get("date", datetime.now().strftime("%Y-%m-%d"))
 
         # 메시지가 비어있다면 에이전트에게 시작 신호를 줍니다.
+        new_messages = []
         if not messages:
-            messages = [HumanMessage(content=f"Please perform a fundamental analysis for {ticker} on {date}.")]
+            start_msg = HumanMessage(content=f"Please perform a fundamental analysis for {ticker} on {date}.")
+            messages = [start_msg]
+            new_messages.append(start_msg)
+
+        print(f"\n[FundamentalsAnalyst] Target: {ticker}, Date: {date}")
+        print(f"[FundamentalsAnalyst] Message History Count: {len(messages)}")
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt + f"\nTarget: {ticker}, Date: {date}"),
@@ -87,9 +93,18 @@ class FundamentalsAnalyst:
         chain = prompt | self.llm_with_tools
         
         # Invoke LLM
+        print("[FundamentalsAnalyst] Calling LLM...")
         result = chain.invoke({"messages": messages})
+
+        new_messages.append(result)
+        res = {"messages": new_messages}
         
-        return {"messages": [result]}
+        # 만약 도구 호출이 없다면(최종 보고서라면), fundamental_report에도 저장
+        if not (hasattr(result, "tool_calls") and result.tool_calls):
+            res["fundamental_report"] = result.content
+            
+        return res
+
 
 # Node instances for easier use in graph/setup.py
 fundamentals_analyst_instance = FundamentalsAnalyst()

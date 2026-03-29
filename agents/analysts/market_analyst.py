@@ -9,7 +9,7 @@ from langchain_core.tools import tool
 
 # dataflows에서 데이터 관련 유틸리티 임포트
 from dataflows.y_finance import get_YFin_data_online, get_stock_stats_indicators_window
-from dataflows.stockstats_utils import StockstatsUtils
+from dataflows.stockstats_utils import StockstatsUtils 
 
 # --- Tools Definition ---
 
@@ -67,6 +67,9 @@ class MarketAnalyst:
         if not messages:
             messages = [HumanMessage(content=f"Please perform a market analysis for {ticker} on {date}.")]
 
+        print(f"\n[MarketAnalyst] Target: {ticker}, Date: {date}")
+        print(f"[MarketAnalyst] Message History Count: {len(messages)}")
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt + f"\nTarget: {ticker}, Date: {date}"),
             MessagesPlaceholder(variable_name="messages"),
@@ -75,6 +78,7 @@ class MarketAnalyst:
         chain = prompt | self.llm_with_tools
         
         # Invoke LLM
+        print("[MarketAnalyst] Calling LLM...")
         result = chain.invoke({"messages": messages})
         
         # 기본 반환값
@@ -82,7 +86,10 @@ class MarketAnalyst:
         
         # 만약 도구 호출이 없다면(최종 보고서라면), market_report에도 저장
         if not (hasattr(result, "tool_calls") and result.tool_calls):
+            print("[MarketAnalyst] Final report generated.")
             res["market_report"] = result.content
+        else:
+            print(f"[MarketAnalyst] Tool calls detected: {[tc['name'] for tc in result.tool_calls]}")
             
         return res
 
