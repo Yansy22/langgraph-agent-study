@@ -47,16 +47,22 @@ class TradingGraphFacade:
         
         market_report = state.get("market_report", "No market report generated.")
         fundamental_report = state.get("fundamental_report", "No fundamental report generated.")
+        micro_news_report = state.get("micro_news_report", "No macro news report generated.")
+        fundamental_news_report = state.get("fundamental_news_report", "No company news report generated.")
         
         full_report = (
             f"=== [Market Analysis Report] ===\n{market_report}\n\n"
-            f"=== [Fundamental Analysis Report] ===\n{fundamental_report}"
+            f"=== [Fundamental Analysis Report] ===\n{fundamental_report}\n\n"
+            f"=== [Macro News Report] ===\n{micro_news_report}\n\n"
+            f"=== [Company News Report] ===\n{fundamental_news_report}\n\n"
+            f"=== [Final Causal Analysis Report] ===\n{state.get('full_decision_report', 'No final decision made.')}"
         )
         
         return {
             "ticker": state.get("ticker"),
             "date": state.get("date"),
             "full_report": full_report,
+            "final_decision": state.get("final_decision", "N/A"),
             "messages_count": len(messages)
         }
 

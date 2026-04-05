@@ -205,3 +205,105 @@ def get_insider_transactions(ticker: str):
         data = ticker_obj.insider_transactions
         return data.to_csv() if data is not None and not data.empty else "No data"
     except Exception as e: return f"Error: {str(e)}"
+
+# --- New News & Performance Tools ---
+
+def get_stock_news(ticker: str) -> str:
+    """Fetch recent news for a specific stock."""
+    try:
+        ticker_obj = yf.Ticker(ticker.upper())
+        news = ticker_obj.news
+        if not news:
+            return f"No news found for {ticker}"
+        
+        formatted_news = []
+        for item in news[:10]: # Limit to 10 latest
+            content = item.get("content", {})
+            title = content.get("title")
+            provider = content.get("provider", {}).get("displayName")
+            link = content.get("canonicalUrl", {}).get("url")
+            
+            if title:
+                formatted_news.append(f"- Title: {title}\n  Publisher: {provider}\n  Link: {link}\n")
+            
+        if not formatted_news:
+            return f"No valid news content found for {ticker}"
+
+        return f"# Recent News for {ticker.upper()}\n" + "\n".join(formatted_news)
+    except Exception as e:
+        return f"Error fetching news: {str(e)}"
+
+def get_macro_news() -> str:
+    """Fetch recent market-wide (macro) news using S&P 500 index."""
+    try:
+        # Using S&P 500 news as a proxy for macro news
+        ticker_obj = yf.Ticker("^GSPC")
+        news = ticker_obj.news
+        if not news:
+            return "No macro news found."
+        
+        formatted_news = []
+        for item in news[:10]:
+            content = item.get("content", {})
+            title = content.get("title")
+            provider = content.get("provider", {}).get("displayName")
+            link = content.get("canonicalUrl", {}).get("url")
+            
+            if title:
+                formatted_news.append(f"- Title: {title}\n  Publisher: {provider}\n  Link: {link}\n")
+            
+        if not formatted_news:
+            return "No valid macro news content found."
+
+        return "# Market-wide (Macro) News\n" + "\n".join(formatted_news)
+    except Exception as e:
+        return f"Error fetching macro news: {str(e)}"
+
+def get_price_performance(ticker: str, curr_date: str) -> str:
+    """Compare current price with 1 week and 1 month ago."""
+    try:
+        end_date = datetime.strptime(curr_date, "%Y-%m-%d")
+        start_date = end_date - relativedelta(months=2) # Fetch enough data
+        
+        ticker_obj = yf.Ticker(ticker.upper())
+        df = ticker_obj.history(start=start_date.strftime("%Y-%m-%d"), end=(end_date + relativedelta(days=1)).strftime("%Y-%m-%d"))
+        
+        if df.empty:
+            return f"No price data found for {ticker}"
+        
+        # Get target price (at curr_date or last available before it)
+        target_df = df[:curr_date]
+        if target_df.empty:
+             return f"No price data available up to {curr_date}"
+        
+        curr_price = target_df.iloc[-1]["Close"]
+        curr_date_actual = target_df.index[-1].strftime("%Y-%m-%d")
+        
+        # 1 week ago
+        one_week_ago = end_date - relativedelta(weeks=1)
+        df_1w = df[:one_week_ago.strftime("%Y-%m-%d")]
+        price_1w = df_1w.iloc[-1]["Close"] if not df_1w.empty else None
+        
+        # 1 month ago
+        one_month_ago = end_date - relativedelta(months=1)
+        df_1m = df[:one_month_ago.strftime("%Y-%m-%d")]
+        price_1m = df_1m.iloc[-1]["Close"] if not df_1m.empty else None
+        
+        report = f"# Price Performance for {ticker.upper()} (as of {curr_date_actual})\n"
+        report += f"- Current Price: ${curr_price:.2f}\n"
+        
+        if price_1w:
+            diff_1w = ((curr_price - price_1w) / price_1w) * 100
+            report += f"- 1 Week Ago: ${price_1w:.2f} ({diff_1w:+.2f}%)\n"
+        else:
+            report += "- 1 Week Ago: Data not available\n"
+            
+        if price_1m:
+            diff_1m = ((curr_price - price_1m) / price_1m) * 100
+            report += f"- 1 Month Ago: ${price_1m:.2f} ({diff_1m:+.2f}%)\n"
+        else:
+            report += "- 1 Month Ago: Data not available\n"
+            
+        return report
+    except Exception as e:
+        return f"Error calculating price performance: {str(e)}"

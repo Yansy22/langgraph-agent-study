@@ -10,6 +10,7 @@ from langchain_core.tools import tool
 # dataflows에서 데이터 관련 유틸리티 임포트
 from dataflows.y_finance import get_YFin_data_online, get_stock_stats_indicators_window
 from dataflows.stockstats_utils import StockstatsUtils 
+from agents.utils.agent_state import get_model_content_text
 
 # --- Tools Definition ---
 
@@ -87,7 +88,7 @@ class MarketAnalyst:
         # 만약 도구 호출이 없다면(최종 보고서라면), market_report에도 저장
         if not (hasattr(result, "tool_calls") and result.tool_calls):
             print("[MarketAnalyst] Final report generated.")
-            res["market_report"] = result.content
+            res["market_report"] = get_model_content_text(result.content)
         else:
             print(f"[MarketAnalyst] Tool calls detected: {[tc['name'] for tc in result.tool_calls]}")
             

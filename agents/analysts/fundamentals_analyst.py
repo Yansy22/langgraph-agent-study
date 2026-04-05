@@ -15,6 +15,7 @@ from dataflows.y_finance import (
     get_cashflow, 
     get_insider_transactions
 )
+from agents.utils.agent_state import get_model_content_text
 
 # --- Tools Definition ---
 
@@ -101,7 +102,7 @@ class FundamentalsAnalyst:
         
         # 만약 도구 호출이 없다면(최종 보고서라면), fundamental_report에도 저장
         if not (hasattr(result, "tool_calls") and result.tool_calls):
-            res["fundamental_report"] = result.content
+            res["fundamental_report"] = get_model_content_text(result.content)
             
         return res
 

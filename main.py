@@ -33,10 +33,10 @@ def main():
         
         print("\n" + "="*50)
         print(f"📅 [{result['date']}] {result['ticker']} 분석 결과")
+        print(f"📢 최종 결정: {result['final_decision']}")
         print("="*50)
         print("\n" + result["full_report"])
         print("\n" + "="*50)
-        print(f"📊 총 메시지 수: {result['messages_count']}")
         print("Done.")
         
     except Exception as e:
