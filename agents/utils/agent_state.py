@@ -18,6 +18,7 @@ class AgentState(TypedDict):
     fundamental_news_report: str
     final_decision: str
     full_decision_report: str
+    pdf_path: Optional[str]
     ticker: str
     date: str
 

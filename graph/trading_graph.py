@@ -61,7 +61,8 @@ class TradingGraphFacade:
         return {
             "ticker": state.get("ticker"),
             "date": state.get("date"),
-            "full_report": full_report,
+            "full_report": state.get("full_decision_report", full_report),
+            "pdf_path": state.get("pdf_path"),
             "final_decision": state.get("final_decision", "N/A"),
             "messages_count": len(messages)
         }

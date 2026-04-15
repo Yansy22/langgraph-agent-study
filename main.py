@@ -36,6 +36,8 @@ def main():
         print(f"📢 최종 결정: {result['final_decision']}")
         print("="*50)
         print("\n" + result["full_report"])
+        if result.get("pdf_path"):
+            print(f"\n📄 PDF Report: {result['pdf_path']}")
         print("\n" + "="*50)
         print("Done.")
         

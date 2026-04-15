@@ -10,3 +10,6 @@ env/
 # 운영체제 관련
 .DS_Store
 Thumbs.db
+
+# pdf Output
+.pdf

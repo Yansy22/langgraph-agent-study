@@ -10,6 +10,7 @@ from agents.analysts.fundamentals_analyst import fundamentals_analyst_node, fund
 from agents.analysts.micro_news_analyst import micro_news_analyst_node, micro_news_analyst_instance
 from agents.analysts.fundamental_news_analyst import fundamental_news_analyst_node, fundamental_news_analyst_instance
 from agents.analysts.final_analyst import final_analyst_node, final_analyst_instance
+from agents.analysts.report_analyst import report_analyst_node
 from agents.analysts.portfolio_manager import portfolio_manager_node, portfolio_manager_instance
 from agents.utils.agent_state import AgentState
 
@@ -71,6 +72,8 @@ def create_trading_graph():
 
     workflow.add_node("final_analyst", final_analyst_node)
     workflow.add_node("final_tools", final_tools)
+    
+    workflow.add_node("report_analyst", report_analyst_node)
     
     # 2. 진입점 설정
     workflow.set_entry_point("market_analyst")
@@ -140,10 +143,11 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "final_tools",
-            "__end__": END
+            "__end__": "report_analyst"
         }
     )
     workflow.add_edge("final_tools", "final_analyst")
+    workflow.add_edge("report_analyst", END)
     
     return workflow.compile()
 
