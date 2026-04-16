@@ -13,6 +13,7 @@ from agents.analysts.final_analyst import final_analyst_node, final_analyst_inst
 from agents.analysts.report_analyst import report_analyst_node
 from agents.analysts.portfolio_manager import portfolio_manager_node, portfolio_manager_instance
 from agents.utils.agent_state import AgentState
+from agents.utils.gatekeeper import gatekeeper_node
 
 # --- Graph Logic ---
 
@@ -27,8 +28,8 @@ def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
         return "tools"
     
     # 도구 호출이 없으면 현재 분석 단계를 종료하고 다음 분석가로 이동
-    print(f"  [Router] No tools detected, finishing current analysis segment.")
-    return "__end__"
+    print(f"  [Router] No tools detected, finishing current segment.")
+    return "finish"
 
 # 전용 도구 노드 분리
 # 1. 시장 분석가 전용 도구 노드
@@ -54,6 +55,7 @@ def create_trading_graph():
     workflow = StateGraph(AgentState)
 
     # 1. 모든 노드 추가 (노드 추가가 엣지 설정보다 앞에 와야 함)
+    workflow.add_node("gatekeeper", gatekeeper_node)
     workflow.add_node("market_analyst", market_analyst_node)
     workflow.add_node("market_tools", market_tools)
     workflow.add_node("clear_market_messages", clear_messages_node)
@@ -76,9 +78,21 @@ def create_trading_graph():
     workflow.add_node("report_analyst", report_analyst_node)
     
     # 2. 진입점 설정
-    workflow.set_entry_point("market_analyst")
+    workflow.set_entry_point("gatekeeper")
     
     # 3. 엣지 및 조건부 로직 설정
+    # ---------------------------------------------------------
+    # 게이트키퍼(Gatekeeper) 흐름 정의
+    # ---------------------------------------------------------
+    workflow.add_conditional_edges(
+        "gatekeeper",
+        lambda state: "continue" if state.get("gatekeeper_passed") else "stop",
+        {
+            "continue": "market_analyst",
+            "stop": END
+        }
+    )
+
     # ---------------------------------------------------------
     # 시장 분석가(Market Analyst) 흐름 정의
     # ---------------------------------------------------------
@@ -87,7 +101,7 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "market_tools",
-            "__end__": "clear_market_messages"
+            "finish": "clear_market_messages"
         }
     )
     workflow.add_edge("market_tools", "market_analyst")
@@ -101,7 +115,7 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "fundamentals_tools",
-            "__end__": "clear_fundamentals_messages"
+            "finish": "clear_fundamentals_messages"
         }
     )
     workflow.add_edge("fundamentals_tools", "fundamentals_analyst")
@@ -115,7 +129,7 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "micro_news_tools",
-            "__end__": "clear_micro_news_messages"
+            "finish": "clear_micro_news_messages"
         }
     )
     workflow.add_edge("micro_news_tools", "micro_news_analyst")
@@ -129,7 +143,7 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "fundamental_news_tools",
-            "__end__": "clear_fundamental_news_messages"
+            "finish": "clear_fundamental_news_messages"
         }
     )
     workflow.add_edge("fundamental_news_tools", "fundamental_news_analyst")
@@ -143,7 +157,7 @@ def create_trading_graph():
         should_continue,
         {
             "tools": "final_tools",
-            "__end__": "report_analyst"
+            "finish": "report_analyst"
         }
     )
     workflow.add_edge("final_tools", "final_analyst")

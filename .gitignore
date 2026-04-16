@@ -13,3 +13,6 @@ Thumbs.db
 
 # pdf Output
 .pdf
+
+# data cache
+data_cache/
