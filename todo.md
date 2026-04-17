@@ -7,7 +7,9 @@
 ### 1. 규칙 시스템 (Rules & Alignment) 적용 🛠️
 - [ ] **전역 헌법(Constitution) 주입**: `agents/rules/constitution.py`의 내용을 모든 에이전트의 시스템 프롬프트 최상단에 자동으로 삽입하는 로직 구현.
 - [ ] **도메인 부칙(Bylaws) 연동**: 각 분석가(Macro, Fundamentals, Market)의 프롬프트에 `agents/rules/bylaws.py`의 전문 지식을 동적으로 임포트.
-- [ ] **Gatekeeper 규칙 확장**: 현재 파이썬 함수에 하드코딩된 기준을 `bylaws.py`로 옮겨 관리 효율화.
+- [ ] **Gatekeeper 고도화 (계획)**:
+    - [x] (완료) Python 기반 하드 필터링 (Volume, Market Cap).
+    - [ ] (예정) `bylaws.py`로 기준치 관리 이관 및 LLM 기반 소프트 필터링(Soft Rule) 노드를 하드 필터링 직후에 추가.
 
 ### 2. 워크플로우 정교화 (Graph Refinement) 🔄
 - [ ] **Portfolio Manager 노드 통합**: `Final Analyst`(인과 분석)와 `Portfolio Manager`(최종 의사결정) 역할을 분리하여 그래프에 추가.
