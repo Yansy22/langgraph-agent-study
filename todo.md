@@ -1,99 +1,59 @@
-# 🚀 Project Roadmap & TODO
+# 🚀 LangGraph AI Trading Analyst - Project Roadmap & TODO
 
-현재 주식 분석 시스템의 핵심 파이프라인(Gatekeeper -> Analysts -> Synthesis -> PDF)은 구축 완료되었습니다. 다음 단계는 시스템의 '지능', '전략적 깊이', 그리고 '운영 효율'을 높이는 고도화 작업입니다.
-
----
-
-### 1. 지능 및 규칙 (Intelligence & Rules) 🧠
-- [ ] **전역 헌법(Constitution) 주입**: `agents/rules/constitution.py`의 내용을 모든 에이전트의 시스템 프롬프트 최상단에 자동으로 삽입하는 로직 구현.
-- [ ] **도메인 부칙(Bylaws) 연동**: 각 분석가(Macro, Fundamentals, Market)의 프롬프트에 `agents/rules/bylaws.py`의 전문 지식을 동적으로 임포트.
-- [ ] **투자 페르소나 설정**: 사용자 성향(공격형/방어형)에 따른 분석 결론 도출 기능 추가.
-- [ ] **멀티 에이전트 토론(Debate) 도입**: 강세론자/약세론자 에이전트 간의 토론 노드를 통해 할루시네이션 억제 및 비판적 분석 강화.
-- [ ] **Gatekeeper 고도화**:
-    - [x] (완료) Python 기반 하드 필터링 (Volume, Market Cap).
-    - [ ] (예정) `bylaws.py`로 기준치 관리 이관 및 LLM 기반 소프트 필터링(Soft Rule) 노드 추가.
-
-### 2. 워크플로우 및 전략 (Workflow & Strategy) 📈
-- [ ] **Portfolio Manager 노드 통합**: `Final Analyst`(인과 분석)와 `Portfolio Manager`(자산 배분 및 최종 결정) 역할을 분리하여 그래프에 추가.
-- [ ] **백테스팅(Backtesting) 연동**: 에이전트의 매수/매도 추천에 대한 과거 데이터 기반 수익률 검증 노드 추가.
-- [ ] **메시지 리스트 세분화**: `AgentState` 내에서 '분석 데이터'와 '에이전트 간 대화 로그'를 분리하여 토큰 최적화.
-- [ ] **실패 경로 복구(Retry Logic)**: 데이터 API 호출 실패 시 재시도하거나 대안 데이터를 찾는 에러 핸들링 강화.
-
-### 3. 데이터 및 성능 최적화 (Data & Optimization) ⚡
-- [ ] **Multi-LLM 하이브리드 전략**:
-    - 단순 요약/검사: Gemini 1.5 Flash 사용
-    - 심층 분석/의사결정: Pro 모델 사용
-- [ ] **캐시 레이어 고도화**: 동일 종목의 당일 분석 요청 시 외부 API 호출 없이 저장된 캐시 데이터 활용 강화.
-- [ ] **RAG(Retrieval-Augmented Generation) 통합**: 기업 공시(10-K), 컨퍼런스 콜 스크립트 등 비정형 데이터 검색 기능 추가.
-- [ ] **경량 감성 분석 모델 분리**: 뉴스 분석 시 금융 특화 소형 모델(FinBERT 등)을 활용한 정량적 점수 산출.
-
-### 4. 인프라 및 사용자 경험 (Infra & UX) 🖥️
-- [ ] **실시간 분석 대시보드**: 에이전트의 사고 과정(Chain of Thought)을 실시간으로 시각화하는 웹 인터페이스(Streamlit/Next.js) 구축.
-- [ ] **자동화 스케줄러 및 알림**: 장 시작/마감 전 자동 분석 실행 및 텔레그램/슬랙 알림 연동.
-- [ ] **인적 피드백 루프(Human-in-the-loop)**: 에이전트의 판단에 대해 사용자가 피드백을 주고, 이를 다음 분석에 반영하는 학습 구조.
+현재 주식 분석 시스템의 핵심 파이프라인(Gatekeeper -> Analysts -> Synthesis -> PDF)은 구축 완료되었습니다. 
+다음 단계는 시스템의 '지능', '전략적 깊이', 그리고 '운영 효율'을 높이는 고도화 작업입니다. 
+본 문서는 현재 흩어져 있던 아이디어와 장기적인 아키텍처 고도화 비전을 체계적으로 통합 관리합니다.
 
 ---
 
-### 완료된 항목 (Ref. 2026-04-16) ✅
-- [x] **Python Gatekeeper**: 거래량 50만 이하 종목 사전 필터링 (LLM 없이 구현).
-- [x] **Centralized Rules**: 헌법 및 부칙 관리를 위한 `agents/rules` 구조 설계.
-- [x] **Graph Routing Fix**: `__end__` 예약어 충돌 해결 및 PDF 리포트 생성 보장.
-- [x] **Multi-Agent Flow**: 시장/재무/뉴스 분석가들의 순차적 분석 파이프라인 연동.
-- [x] **PDF 생성**: 분석 결과를 시각화된 리포트로 자동 변환.
+## 📌 최우선 과제 (High Priority: Refactoring & Architecture Alignment)
+- [ ] **에이전트 기본 클래스 상속 통합**: `market_analyst.py` 등 모든 에이전트 모듈이 공용 구조인 `BaseAnalyst`(`agents/base.py`)를 상속하도록 리팩토링.
+- [ ] **전역 헌법 및 부칙 적용**: `agents/rules/constitution.py`와 `bylaws.py`의 내용이 모든 에이전트의 시스템 프롬프트 최상단에 자동 주입되도록 파이프라인 연결.
+- [ ] **Portfolio Manager 노드 편입**: `Final Analyst` 로직에서 자산 배분/최종 결정을 분리, `portfolio_manager.py` 노드를 메인 그래프(`setup.py`)에 정식 편입.
+- [ ] **Pydantic Structured Output 파싱**: 결정 노드(BUY/HOLD/SELL)가 더 안정적으로 응답을 파싱할 수 있게 구조화된 데이터(Structured Output) 추출 로직 도입.
 
+---
 
-1. 기술적 고도화 (Technical Evolution)
-RAG (Retrieval-Augmented Generation) 통합:
-현재는 실시간 API(yfinance)에 의존하지만, 기업의 분기 보고서(10-K, 10-Q), 컨퍼런스 콜 스크립트 등을 **Vector DB(ChromaDB, Pinecone 등)**에 저장하고 분석가가 필요할 때마다 검색해서 참조하게 할 수 있습니다.
-신뢰성 있는 가드레일 (Safe Guards):
-LLM의 추천이 터무니없는 경우(예: 손절매 라인 없는 매수 추천)를 방지하기 위해 PydanticOutputParser를 사용하여 응답 형식을 강제하고, 수치적 검증 노드를 추가해야 합니다.
-멀티 레이어 캐싱 (Advanced Caching):
-동일 종목 데이터뿐만 아니라, 유사한 시장 환경에서의 과거 분석 패턴을 캐싱하여 재사용함으로써 비용을 획기적으로 낮출 수 있습니다.
-2. 투자 전략의 정교화 (Investment Strategy)
-백테스팅(Backtesting) 엔진 연동:
-시스템이 내린 'BUY' 결정이 실제 과거 데이터에서 수익을 냈을지 검증하는 노드를 추가하세요. Backtrader나 VectorBT 같은 라이브러리와 연동하여 "이 에이전트의 승률은 65%입니다"라는 통계를 리포트에 포함할 수 있습니다.
-멀티 에이전트 토론 (Multi-Agent Debate):
-현재는 순차적 분석이지만, '강세론자(Bull) 에이전트'와 '약세론자(Bear) 에이전트'가 서로 토론하게 하고 Final Analyst가 판결을 내리는 구조로 바꾸면 할루시네이션이 줄어들고 비판적 사고가 강화됩니다.
-포트폴리오 리밸런싱 로직:
-개별 종목 분석을 넘어, 현재 보유한 전체 자산의 비중을 고려하여 "NVDA는 좋지만 이미 비중이 높으니 이번엔 건너뛰세요"와 같은 자산 배분(Asset Allocation) 관점의 조언 노드를 추가할 수 있습니다.
-3. 운영 및 인프라 (Ops & Infrastructure)
-실시간 대시보드 (Streamlit/Next.js):
-PDF 리포트 생성에서 한 걸음 더 나아가, 에이전트들의 사고 과정(생각 체인)을 웹에서 실시간으로 볼 수 있는 대시보드를 구축하세요.
-자동화 스케줄러 (GitHub Actions / Airflow):
-매일 장 마감 후 또는 장 시작 전 자동으로 관심 종목 리스트를 스캔하고 텔레그램/슬랙으로 요약 보고서를 발송하는 기능을 추가할 수 있습니다.
-인적 피드백 루프 (Human-in-the-loop):
-에이전트의 결정에 사용자가 "이 분석은 틀렸어"라고 피드백을 주면, 그 내용이 data_cache/feedback.json에 저장되어 다음 분석 시 반영되는 학습 구조를 만들 수 있습니다.
-4. 사용자 맞춤형 지능 (Personalization)
-투자 페르소나 설정:
-"나는 공격적인 성장주 투자자야" 또는 "나는 은퇴 자금을 위한 배당주 투자자야"라는 설정을 Constitution에 반영하여, 동일한 종목이라도 사용자 성향에 따라 다른 결론을 내리게 할 수 있습니다.
-뉴스 감성 분석(Sentiment Analysis) 모델 분리:
-뉴스 분석 시 범용 LLM 대신 금융 전용 작은 모델(FinBERT 등)을 로컬에서 실행하여 뉴스 톤을 수치화하고, 이를 LLM에 정량적 데이터로 넘겨줌으로써 정확도와 비용을 동시에 잡을 수 있습니다.
+## 📅 단계별 고도화 로드맵 (Evolution Roadmap)
 
+### Phase 1: 아키텍처 및 지능 모델 강화 (Graph Evolution & Intelligence)
+- [ ] **병렬 실행 (Parallel Fan-out/Fan-in)**: Market, Fundamentals, News 분석 노드를 동시에 실행하여 전체 분석 시간 60~70% 단축.
+- [ ] **멀티 에이전트 토론 (Debate)**: 강세론자(Bull)와 약세론자(Bear) 에이전트 도입 및 상호 토론 결과를 바탕으로 Final Analyst 판결 도출 (할루시네이션 방지).
+- [ ] **자기 비판 및 가드레일 (Self-Correction & Safeguards)**: 최종 리포트에 논리적 허점이나 터무니없는 추천(예: 손절 구간 없는 매수)을 방지하는 '비판자(Red Team)' 및 수치 검증 노드 추가.
+- [ ] **서브그래프(Subgraphs) 개편**: 특정 분석가의 역할을 독립된 서브그래프로 분리 (예: 거시경제 애널리스트 내부에 '금리/환율' 전문 Sub-Node를 둠).
+- [ ] **확신 점수 (Confidence Score) 시스템**: 분석가들이 각자의 의견 제시 시 0~1.0 사이의 '확신도'를 동시에 출력, 최종 판단 노드에서 이 가중치를 참조하도록 로직 설계.
+- [ ] **투자 페르소나 반영 (Persona)**: 공격형/배당형 등 사용자 성향을 Constitution에 삽입하여 동일 종목이라도 조건에 따른 맞춤 처방 도출.
 
-프로젝트를 todo.md에 정의된 핵심 기능을 넘어, 실제 상용 수준의 AI 투자 솔루션으로 진화시키기 위한 **"차세대 고도화 전략"**을 4가지 핵심 관점에서 제안해 드립니다.
+### Phase 2: 최적화 및 전략 백테스트 (Performance & Strategy)
+- [ ] **Multi-LLM 하이브리드 설계**: 
+  - 단순 요약/텍스트 기반 파싱: `Gemini 1.5 Flash` (속도/비용 최적화)
+  - 복잡한 연산, 최종 추론 및 의사결정: `Pro` 모델 계열 사용
+- [ ] **멀티 레이어 캐싱 (Advanced Caching)**: 동일 종목 당일 1차 캐싱 외에 '유사한 시장 환경에서의 과거 패턴'까지 캐싱하여 처리 효율 향상.
+- [ ] **시계열 지속성 메모리 (Checkpointers)**: 이전 시점 분석 결론 기억 (예: "지난번엔 매수 추천했으나, 이번 분기 결과가 기대에 미치지 못해 관망세로 전환한다" 같은 문맥 형성).
+- [ ] **백테스팅(Backtesting) 엔진 연동**: 과거 차트 시뮬레이터(Backtrader 등) 연결, 해당 에이전트 전략의 승률과 누적 수익률을 리포트에 명시.
+- [ ] **경량 금융 특화 NLP 분리**: 뉴스 문맥 분석 시汎용 LLM 대신 로컬 환경에서 가동 가능한 소형 감성 모델(FinBERT 등)을 활용해 정량 점수 지표로 도출 비용 절감.
 
-현재 시스템이 '순차적 분석기'라면, 앞으로는 **'유기적 사고가 가능한 가상 투자 조직'**으로 발전시키는 것이 핵심입니다.
+### Phase 3: 데이터 영역 확장 (Deep Data Integration)
+- [ ] **비정형 RAG 검색 연결**: API 기반 실시간 데이터(yfinance) 외에 기업 분기 보고서(10-K), 컨퍼런스 콜 스크립트를 Vector DB로 묶어 RAG 검색망 구축.
+- [ ] **지식그래프 융합 (GraphRAG)**: 단순 키워드 검색을 초월한 맥락 파악. 
+  - 특정 종목(NVDA) 분석 시 관련 고객사, 경쟁사 데이터까지 자동으로 스캔하는 **Supply Chain Analytics** 노드 신설.
+- [ ] **Vision Agent (차트 인식)**: LLM의 Vision 기능을 적용해 RSI, 이동평균선 등의 주가 차트 이미지를 시각적으로 직접 독해하는 노드 설계.
 
-1. 아키텍처 고도화 (Architectural Evolution)
-현재의 일자형(Sequential) 구조를 복합적인 그래프 구조로 전환하여 효율성과 확장성을 극대화합니다.
+### Phase 4: 인프라, 모니터링, 경험 (Infra & Observability)
+- [ ] **실시간 분석 대시보드 (Web UI)**: Streamlit 혹은 Next.js를 활용하여, 에이전트들의 사고 체인(CoT) 전개 과정을 브라우저 단에서 실시간 확인 가능한 인터페이스 배포.
+- [ ] **자동화 스케줄&알람 (Scheduler/CI)**: 장 시작 전/장 마감 직후 타겟 관심 종목 배치 분석 및 자동 텔레그램/슬랙 요약 알림망.
+- [ ] **인적 피드백 시스템 (Human-In-The-Loop)**: 시스템 판단에 대한 인간 관리자의 교정 피드백 -> 로컬 `feedback.json` 누적 -> 다음 쿼리에 가중 반영.
+- [ ] **토큰 관리 및 품질 측정 (DevOps & Eval)**:
+  - Token Economy Dashboard: 노드/에이전트별 토큰 사용량 실시간 모니터링.
+  - 프롬프트 버저닝 (Semantic Versioning): LangSmith 기반 A/B 테스트 성과 추적.
+  - Test Automation: 애널리스트 단위 격리 테스트(Unit Test) 작성으로 회귀 사이클 차단.
 
-병렬 실행 (Parallel Fan-out/Fan-in): Market, Fundamental, News 분석 노드를 동시에 실행(Parallel Nodes)하여 전체 분석 시간을 60~70% 단축할 수 있습니다. 각 분석이 끝난 후 Final Analyst에서 결과를 취합(Join)하는 방식을 도입하세요.
-서브그래프(Subgraphs) 도입: 각 분석가(예: Macro Analyst)를 독립적인 서브그래프로 분리합니다. 예를 들어 Macro Analyst 내부에 '금리 분석', '환율 분석', '원자재 분석' 노드를 별도로 두어 전문성을 심화할 수 있습니다.
-지속적 메모리 (Checkpointers & Time-series): LangGraph의 Persistence 기능을 활용하여 특정 종목에 대해 1주일 전, 1달 전 내렸던 결정을 기억하게 합니다. "지난번엔 매수를 추천했지만, 이번 분기 실적이 예상보다 좋지 않아 관망으로 변경한다"와 같은 시계열 추론이 가능해집니다.
-2. 신뢰성 및 지능 강화 (Intelligence & Reliability)
-AI의 할루시네이션을 방지하고 분석의 정교함을 높이는 방법입니다.
+---
 
-멀티 모달 차트 분석 (Vision Agent): Gemini 1.5 Pro의 Vision 기능을 활용하여 주가 차트(RSI, MACD, 이동평균선 등) 이미지를 직접 분석하는 노드를 추가하세요. 텍스트 데이터가 놓치는 기술적 지표를 시각적으로 보완할 수 있습니다.
-확신점수(Confidence Score) 시스템: 각 분석가 노드가 분석 내용뿐만 아니라 자신의 판단에 대한 '확신도(0-1.0)'를 출력하게 합니다. 만약 데이터가 부족하여 뉴스 분석가의 확신도가 낮다면, 최종 결정 노드에서 해당 의견의 비중을 낮추도록 로직을 설계합니다.
-자기 비판 노드 (Self-Correction Loop): 최종 리포트가 나오기 전, '반대 의견(Red Team)' 노드를 실행하여 리포트의 논리적 허점을 찾게 합니다. 이를 통해 더욱 객관적이고 방어적인 투자 의견 도출이 가능합니다.
-3. 데이터 경험의 심화 (Deep Data Knowledge)
-단순 조회를 넘어 데이터 간의 상관관계를 파악하는 방식입니다.
+## ✅ 완료 이력 (Completed Milestones)
 
-공급망 및 경쟁사 연동 (Supply Chain Analysis): NVDA를 분석할 때, 자동으로 그들의 고객사(TSMC, MSFT 등)나 경쟁사(AMD)의 데이터도 함께 훑어 연관 리스크를 파악하는 'Supply Chain Node'를 제안합니다.
-GraphRAG 전환: 단순 문서 검색이 아닌, 기업-인물-시장-사건 간의 관계를 지식 그래프(Knowledge Graph)로 구축하여 RAG를 수행합니다. "금리 인상이 이 회사의 부채 구조에 미치는 구체적 영향"과 같은 복잡한 질문에 더 명확히 답할 수 있습니다.
-4. 운영 및 모니터링 (Ops & Observability)
-실제 서비스 운영 단계에서 필수적인 요소들입니다.
-
-토큰 버짓 관리 및 최적화 (Token Economy): 각 에이전트가 사용할 수 있는 최대 토큰량을 설정하고, 현재 비용을 실시간으로 추적하는 대시보드를 추가하세요.
-프롬프트 버전 관리 (Semantic Versioning): 에이전트의 성능에 가장 큰 영향을 미치는 프롬프트를 코드가 아닌 별도의 관리 도구(LangSmith 등)로 분리하여, 어떤 프롬프트 버전이 더 높은 수익률(또는 정확도)을 냈는지 A/B 테스트를 수행합니다.
-노드 단위 유닛 테스트: 전체 그래프를 실행하지 않고도 특정 분석가 노드만 떼어내어 검증하는 테스트 코드를 구축하여 개발 속도를 높입니다.
+- [x] **Python 기반의 Gatekeeper (사전 필터링)**: LLM 콜 전, 거래량 50만 및 시가총액 기반 허들을 설정하여 방어적인 실행 파이프라인 적용.
+- [x] **Centralized Rules 구조화**: 전역 헌법(Constitution) 및 부칙(Bylaws)을 체계적으로 담기 위한 `agents/rules` 아키텍처 초안 설계 완료.
+- [x] **Graph Routing & Edge 복구**: 중간에 발생하는 `__end__` 예약어 등 그래프 충돌 관련 로직 안정화. PDF Report 연결 복구.
+- [x] **Multi-Agent 순차 연동**: 마켓 -> 펀더멘털 -> 거시경제 마이크로 -> 기업 분석 순으로 데이터를 바통 터치하는 파이프라인 개발 완료.
+- [x] **PDF Generator**: 도출된 분석 결과를 텍스트에 한정 짓지 않고 시각적 리포트(PDF) 형태로 저장하는 후속 로직 장착.
